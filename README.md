@@ -1,7 +1,7 @@
-# GoZero% Crowd-Powered Launch
+# GoZero% Crowd-Powered Launch v2
 
 Operational MVP for **KICK START ZERO WASTE TO LANDFILL — THE TELKOM HUB**.
-Official supplied PNG is used unchanged. Blue `#004781` leads the visual system.
+Official supplied reverse-white GoZero PNG is used unchanged. Blue `#004781` leads the visual system.
 
 ## Live application
 
@@ -37,11 +37,11 @@ The operator can use multiple devices, but commands carry a revision guard. A st
 ## Try the show
 
 1. Open operator, LED and participant routes in separate windows/devices.
-2. On the actual LED output click **ARM AUDIO**, verify output device/level, then **FULL SCREEN**. The embedded operator preview is always silent.
+2. On the actual LED output click **AKTIFKAN AUDIO** once, verify output/volume, then **FULL SCREEN**. The ambient score loops through the show; countdown uses preloaded spoken English numbers and a GO cue. The embedded operator preview and participant/VIP phones are always silent.
 3. Set a target from 30 to 100 while holding and before the first contribution. Default 50.
 4. **SHOW QR**, then **START PARTICIPATION** on the MC's cue. Each browser device contributes once per epoch.
 5. At target, audience energy locks automatically at 95%. Click **VIP READY** and confirm. VIP standby can hold indefinitely.
-6. On show caller GO, **TRIGGER LAUNCH**, then confirm: 5-second countdown → convergence → burst → title → hero.
+6. Use **BUAT QR / LINK VIP** in operator, privately pair one VIP phone, then **VIP READY** on caller cue. VIP completes the iPhone-style slide to start the 5-second spoken countdown → convergence → surge → burst → title → hero. **TRIGGER LAUNCH** remains a confirmed operator fallback.
 7. **SHOW HERO SCREEN** bypasses the rest of the reveal after launch, or wait for automatic hero (17 seconds after GO by default).
 8. **RESET REHEARSAL** creates a new rehearsal epoch. Live data cannot be reset using that control.
 
@@ -80,3 +80,7 @@ Edit `event.config.json`, run build and restart. Event title/title lines, reveal
 Source, seven LED states, realtime engine, branded mobile page, operator dashboard, generated QR, rehearsal sound, configuration, automated tests, Docker deployment files, operator SOP, director cue sheet and AV manifest are included. The server must run for realtime; `dist/` contains static assets only.
 
 See `docs/OPERATOR-SOP.md`, `docs/CUE-SHEET.md`, `docs/AV-MANIFEST.json`, `docs/DEPLOYMENT.md`, and `docs/VALIDATION.md`.
+
+## VIP access
+
+The VIP page is `/vip/[sessionId]`, accessed through the private operator-generated link/QR. A fragment token is exchanged once for an HttpOnly signed cookie bound to one browser, session and epoch. Link expires after eight hours. Regenerating or revoking the link invalidates the old device. Ordinary participants cannot trigger the VIP endpoint. The slide is blocked until VIP READY and on connection loss. Partial drag or tap cannot launch. Keyboard users hold the right arrow. See `docs/REVISION-V2.md`.

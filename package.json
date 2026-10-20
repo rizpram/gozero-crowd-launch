@@ -1,9 +1,18 @@
 {
   "name": "gozero-crowd-launch",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "scripts": {"start":"node server.mjs", "dev":"node server.mjs", "test":"node --test test/*.test.mjs", "build":"node scripts/build.mjs"},
-  "engines": {"node": ">=22"},
-  "dependencies": {"qrcode":"1.5.4"}
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4"
+  }
 }

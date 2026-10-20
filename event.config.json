@@ -1,12 +1,27 @@
 {
   "title": "KICK START ZERO WASTE TO LANDFILL",
-  "titleLines": ["KICK START", "ZERO WASTE", "TO LANDFILL"],
-  "revealLines": ["KICK START", "ZERO WASTE TO LANDFILL"],
+  "titleLines": [
+    "KICK START",
+    "ZERO WASTE",
+    "TO LANDFILL"
+  ],
+  "revealLines": [
+    "KICK START",
+    "ZERO WASTE TO LANDFILL"
+  ],
   "venue": "THE TELKOM HUB",
   "tagline": "ONE ACTION. COLLECTIVE IMPACT.",
   "supportingMessage": "Together Towards Zero Waste to Landfill.",
   "descriptor": "Sustainability Action by Telkom Indonesia",
-  "logo": "/logo.png",
+  "logo": "/logo-reverse.png",
+  "logoVariant": "reverse",
+  "version": "2.0.0-vip-slide",
+  "audio": {
+    "ambient": "/audio/ambient.wav",
+    "launch": "/audio/reveal.wav",
+    "voiceBase": "/audio/count-",
+    "volume": 0.65
+  },
   "primary": "#004781",
   "secondary": "#082C46",
   "accent": "#36B37E",
@@ -25,6 +40,7 @@
     "vip": "ONE FINAL ACTION",
     "reveal": "KICK START ZERO WASTE TO LANDFILL",
     "success": "TERIMA KASIH SUDAH BERPARTISIPASI!",
-    "successSupporting": "Aksimu telah bergabung dalam energi kolektif menuju Zero Waste to Landfill."
+    "successSupporting": "Aksimu telah bergabung dalam energi kolektif menuju Zero Waste to Landfill.",
+    "vipSupporting": "GESER TOMBOL DI PERANGKAT VIP UNTUK MEMULAI"
   }
 }

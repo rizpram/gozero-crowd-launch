@@ -19,4 +19,4 @@ Default timing is relative to operator confirmation of LAUNCH. Adjust run-of-sho
 | SAFE 01 | Emergency reveal. GO. | EMERGENCY REVEAL + reason + confirm | Immediate hero | Manual audio only if called |
 | SAFE 02 | Server/network unavailable. GO backup. | Workstation switches to local `backup/hero.html` | Offline title and official logo | Note manual cue time; no server sync claimed |
 
-The VIP can perform a symbolic gesture coordinated with the caller. This MVP does not integrate a physical VIP button, MIDI, OSC, Art-Net, DMX, NDI or a hardware relay. Operator is the sole remote authority for final activation.
+The VIP can perform a symbolic gesture coordinated with the caller. This MVP does not integrate a physical VIP button, MIDI, OSC, Art-Net, DMX, NDI or a hardware relay. A paired VIP phone may trigger final activation with a complete slide after operator VIP READY; the operator retains the confirmed fallback. See REVISION-V2.md.

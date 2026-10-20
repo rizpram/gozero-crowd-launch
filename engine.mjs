@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 export class ShowError extends Error { constructor(message, status=409) { super(message); this.status=status; } }
 export function createSession(id, mode, config) {
   return {id, mode, epoch:randomUUID(), state:'holding', accepting:false, target:config.target,
-    contributions:[], launchAt:null, early:false, revision:0, updatedAt:Date.now()};
+    contributions:[], launchAt:null, early:false, vip:null, revision:0, updatedAt:Date.now()};
 }
 export const energy = s => Math.min(95, s.contributions.length / s.target * 95);
 export function contribute(s, identity) {

@@ -34,6 +34,7 @@ export function makeApp(options={}) {
   const signed=v=>v+'.'+hmac(v);
   const verify=v=>{ if(!v||v.length>300)return null;const i=v.lastIndexOf('.');if(i<1)return null;const val=v.slice(0,i),sig=v.slice(i+1);return /^[a-f0-9]{64}$/.test(sig)&&timingSafeEqual(Buffer.from(sig),Buffer.from(hmac(val)))?val:null; };
   const authorized=req=>{const id=verify(cookies(req).gz_operator);return !!(id&&operators.get(id)>Date.now());};
+  const vipAuthorized=(req,s)=>{const value=verify(cookies(req)['gz_vip_'+s.id]);return !!(s.vip && s.vip.epoch===s.epoch && s.vip.expiresAt>Date.now() && value===s.vip.browser);};
   const identity=(req,res)=>{let id=verify(cookies(req).gz_device);if(!id){id=randomBytes(24).toString('hex');res.setHeader('Set-Cookie',`gz_device=${signed(id)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800${production?'; Secure':''}`);}return hmac(id);};
   const audit=(s,event,detail={})=>appendFileSync(join(data,'audit.ndjson'),JSON.stringify({at:new Date().toISOString(),session:s.id,mode:s.mode,epoch:s.epoch,event,revision:s.revision,...detail})+'\n',{mode:0o600});
   const publicState=s=>({id:s.id,mode:s.mode,epoch:s.epoch,state:s.state,accepting:s.accepting,target:s.target,count:s.contributions.length,energy:energy(s),early:s.early,launchAt:s.launchAt,revision:s.revision,updatedAt:s.updatedAt,serverTime:Date.now(),config});
@@ -67,11 +68,46 @@ export function makeApp(options={}) {
         if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
         const s=sessions[url.searchParams.get('session')||'rehearsal'];if(!s)throw new ShowError('Sesi tidak tersedia.',404);
         const log=existsSync(join(data,'audit.ndjson'))?readFileSync(join(data,'audit.ndjson'),'utf8').trim().split('\n').slice(-300).filter(Boolean).map(JSON.parse).filter(x=>x.session===s.id).slice(-50).reverse():[];
-        return json(res,200,{...publicState(s),...stats(s),log,sessions:Object.keys(sessions),publicUrl:publicUrl||`http://${req.headers.host}`});
+        return json(res,200,{...publicState(s),...stats(s),vipStatus:!s.vip||s.vip.expiresAt<Date.now()?'unpaired':s.vip.browser?'paired':'link-created',log,sessions:Object.keys(sessions),publicUrl:publicUrl||`http://${req.headers.host}`});
       }
-      const m=url.pathname.match(/^\/api\/(state|events|contribute|action|qr|led)\/([a-z0-9-]+)$/);
+      const m=url.pathname.match(/^\/api\/(state|events|contribute|action|qr|led|vip-pair|vip-access|vip-status|vip-launch|vip-revoke)\/([a-z0-9-]+)$/);
       if(m){
         const [,type,id]=m,s=sessions[id];if(!s)throw new ShowError('Sesi tidak tersedia.',404);
+        if(type==='vip-pair'&&req.method==='POST'){
+          if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
+          if(['launch','hero'].includes(s.state))throw new ShowError('Launching telah berlangsung.');
+          await body(req);const token=randomBytes(32).toString('base64url');
+          s.vip={tokenHash:hmac(token),epoch:s.epoch,expiresAt:Date.now()+8*3600000,browser:null};
+          audit(s,'VIP_LINK_CREATED');finish(s);
+          const link=(publicUrl||`http://${req.headers.host}`)+`/vip/${s.id}#token=${token}`;
+          const qr=await QRCode.toDataURL(link,{width:360,margin:3,errorCorrectionLevel:'M'});
+          return json(res,200,{url:link,qr,expiresAt:s.vip.expiresAt});
+        }
+        if(type==='vip-revoke'&&req.method==='POST'){
+          if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
+          await body(req);s.vip=null;audit(s,'VIP_ACCESS_REVOKED');finish(s);return json(res,200,{ok:true});
+        }
+        if(type==='vip-access'&&req.method==='POST'){
+          rate(req,'vip-access',20);const b=await body(req);
+          if(!s.vip||s.vip.epoch!==s.epoch||s.vip.expiresAt<Date.now()||typeof b.token!=='string'||b.token.length>128||hmac(b.token)!==s.vip.tokenHash)throw new ShowError('Link VIP tidak valid atau kedaluwarsa. Minta link baru dari operator.',401);
+          if(s.vip.browser&&!vipAuthorized(req,s))throw new ShowError('Link ini sudah dipasangkan ke satu perangkat VIP.',403);
+          if(!s.vip.browser){s.vip.browser=randomBytes(24).toString('hex');audit(s,'VIP_DEVICE_PAIRED');finish(s);}
+          res.setHeader('Set-Cookie',`gz_vip_${s.id}=${signed(s.vip.browser)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${production?'; Secure':''}`);
+          return json(res,200,{ok:true,...publicState(s)});
+        }
+        if(type==='vip-status'&&req.method==='GET'){
+          if(!vipAuthorized(req,s))throw new ShowError('Akses VIP belum dipasangkan. Minta QR khusus dari operator.',401);
+          return json(res,200,publicState(s));
+        }
+        if(type==='vip-launch'&&req.method==='POST'){
+          if(!vipAuthorized(req,s))throw new ShowError('Akses VIP tidak valid. Hubungi operator.',401);
+          rate(req,'vip-launch',30);const b=await body(req);
+          if(b.epoch!==s.epoch)throw new ShowError('Sesi telah diperbarui.');
+          if(b.gesture!=='slide-complete')throw new ShowError('Selesaikan gerakan geser.',400);
+          if(['launch','hero'].includes(s.state))return json(res,200,{...publicState(s),duplicate:true});
+          action(s,'LAUNCH',{confirm:true},config);audit(s,'VIP_SLIDE_LAUNCH',{actor:'paired-vip',early:s.early,count:s.contributions.length,energy:energy(s)});finish(s);
+          return json(res,200,publicState(s));
+        }
         if(type==='state'&&req.method==='GET'){const who=identity(req,res);return json(res,200,{...publicState(s),contributed:s.contributions.includes(hmac(s.epoch+who))});}
         if(type==='events'&&req.method==='GET'){
           const who=identity(req,res);if(clients.size>=500)throw new ShowError('Kapasitas koneksi penuh.',503);
@@ -101,8 +137,8 @@ export function makeApp(options={}) {
         throw new ShowError('Method not allowed',405);
       }
       if(req.method!=='GET')throw new ShowError('Not found',404);
-      let file=url.pathname==='/'||/^\/(operator|join\/[a-z0-9-]+|led\/[a-z0-9-]+)$/.test(url.pathname)?'index.html':decodeURIComponent(url.pathname).slice(1);
-      if(!['index.html','app.js','style.css','logo.png','launch.wav'].includes(file))throw new ShowError('Not found',404);
+      let file=url.pathname==='/'||/^\/(operator|join\/[a-z0-9-]+|led\/[a-z0-9-]+|vip\/[a-z0-9-]+)$/.test(url.pathname)?'index.html':decodeURIComponent(url.pathname).slice(1);
+      if(!['index.html','app.js','led.js','vip.js','sound.js','style.css','revision.css','logo.png','logo-reverse.png','launch.wav','audio/ambient.wav','audio/reveal.wav',...Array.from({length:11},(_,i)=>`audio/count-${i}.wav`)].includes(file))throw new ShowError('Not found',404);
       const bytes=readFileSync(join(ROOT,'public',file));
       const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.wav':'audio/wav'};
       res.writeHead(200,{'Content-Type':mime[extname(file)],'Cache-Control':'no-cache'});res.end(bytes);
