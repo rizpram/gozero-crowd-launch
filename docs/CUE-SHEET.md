@@ -12,9 +12,10 @@ Default timing is relative to operator confirmation of LAUNCH. Adjust run-of-sho
 | VIP 05 | VIP in position. GO VIP ready. | VIP READY + confirmation | ONE FINAL ACTION, indefinite hold | Confirm VIP/photographers/audio readiness |
 | VIP 05E | Authorized early final. | VIP READY + operational reason + confirmation | Same standby; actual metrics retained | Audit EARLY; do not claim 95% reached |
 | AV/SND 06 | Standby launch. 3, 2, 1, GO. | TRIGGER LAUNCH + confirmation once | 5-second synchronized countdown begins | Operator must allow for dialog before final confirmation |
-| AV 06A, GO+5s | Continue. | Automatic | Deep-blue convergence, circle completes over ~1.8s | Browser plays rehearsal sting at GO+5s if armed |
-| AV 06B, GO+6.8s | Continue. | Automatic | Blue/green burst | Separate approved audio playback may substitute; one source only |
-| AV 06C, GO+8.5s | Reveal. | Automatic | Branded event title appears | Let text settle |
+| AV 06A, GO+5s | Continue. | Automatic | Deep-blue energy gathers over 1.1s | Spoken GO and reveal score begin |
+| AV 06S, GO+6.1s | Continue. | Automatic | Blue/green energy surge expands over 1.3s | One audible LED output only |
+| AV 06B, GO+7.4s | Continue. | Automatic | Blue/green burst | Separate approved audio playback may substitute; one source only |
+| AV 06C, GO+8.8s | Reveal. | Automatic | Branded event title appears | Let text settle |
 | AV 07, GO+17s | Hold for photo. | Automatic HERO, or SHOW HERO + confirm | Clean title and official logo; minimal background motion | Hold indefinitely for documentation |
 | SAFE 01 | Emergency reveal. GO. | EMERGENCY REVEAL + reason + confirm | Immediate hero | Manual audio only if called |
 | SAFE 02 | Server/network unavailable. GO backup. | Workstation switches to local `backup/hero.html` | Offline title and official logo | Note manual cue time; no server sync claimed |

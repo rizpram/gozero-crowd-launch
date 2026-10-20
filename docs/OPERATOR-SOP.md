@@ -6,7 +6,7 @@ Assign show caller, operator, LED tech, audio tech, and network PIC. Use wired E
 
 1. Check `/health`; log into operator at canonical origin. Confirm correct session pill.
 2. In REHEARSAL, verify one tap, refresh, duplicate prevention, pause/resume, and target lock. These contribution numbers must never be represented as real waste quantities.
-3. Open LED route on workstation, arm audio and full-screen. Use only one audible output, not both browser and vMix/Resolume audio. Verify audio cue, intended routing and level with audio tech.
+3. Open LED route on workstation, click AKTIFKAN AUDIO and full-screen. Use only one audible output, not both browser and vMix/Resolume audio. Verify audio cue, intended routing and level with audio tech.
 4. Dashboard should show connected LED, preloaded assets, audio armed. Manually check the actual physical LED for correct color, typography, framing, QR, and legible official descriptor. A green heartbeat alone cannot verify the physical screen.
 5. Rehearse countdown, energy reveal, hero and emergency. Confirm all seven states.
 6. Open `backup/hero.html` from extracted local files in another window; verify official logo. Keep manual switch to backup available on the workstation/playback system. Keep `public/launch.wav` ready in playback software if audio is run separately.
@@ -29,7 +29,7 @@ Use `docs/CUE-SHEET.md`. Normal cue buttons do not require dialogs; VIP, lock, l
 | Stale revision warning | Read new state and retry the intended cue; do not rapidly click different controls. |
 | Network interruption | LED holds last known state with disconnect warning. Restore network, or switch workstation to the already-open local backup hero on caller GO. Local backup is visual-only and does not write a server audit; document its cue time manually after show. |
 | Server running, show must reveal immediately | EMERGENCY REVEAL + reason + confirmation. Server stores the override and shows hero. |
-| Server restarts during reveal | Reopen LED; state and timestamp recover. Re-arm audio manually. Missed sound is not replayed late automatically. |
+| Server restarts during reveal | Reopen LED; state and timestamp recover. Re-click AKTIFKAN AUDIO manually. Missed sound is not replayed late automatically. |
 | No audio | Check arm status and physical routing. Play local WAV manually on caller cue; avoid double playback. |
 | Screen/processor failure | Tech switches to alternate feed/workstation; browser heartbeat cannot diagnose hardware. |
 

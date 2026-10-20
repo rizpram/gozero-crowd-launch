@@ -34,3 +34,11 @@ No sound service, CDN or production speech credentials are needed. Countdown WAV
 Pairing and revocation require operator authentication. VIP access uses a high-entropy, single-use pairing token; only its hash is persisted. Cookie is signed, HttpOnly, SameSite Strict and Secure in production. Neither token nor device credential is present in public state, participant QR, or audit text. Pairing is per session; live and rehearsal stay isolated. Single browser is an access policy, not biometric VIP identity.
 
 12 automated tests pass, including operator-only pairing, single-device exchange, not-ready rejection, invalid gesture payload, concurrent duplicate launch, contribution preservation, revocation, reissue and reset. Local Chromium mobile touch checks cover tap, cancelled partial drag and completed drag, plus scheduled audio source starts and LED reveal. Hardware audio routing and actual venue performance need a desk rehearsal.
+
+## Public deployment verified
+
+Railway deployment `765318f2-5a15-4ce4-96b4-46764516b1dd` reached SUCCESS on 20 October 2026. Runtime source commit: `144974c`. Public URL remains https://gozero-crowd-launch-production.up.railway.app.
+
+Public Chromium end-to-end result: PASS. Verified private pairing, disabled standby, tap and partial touch cancellation, completed touch swipe, one launch request, eight scheduled audio sources (ambient + five numbers + GO + reveal), countdown/reveal to hero, zero uncaught JavaScript errors. Tested mobile viewport 390×844 and LED 1920×1080. Rehearsal reset to holding/zero; live count preserved at zero. Physical audio desk routing and venue playback performance require on-site checks.
+
+Private pairing/revocation does not change the show cue revision, so connecting the VIP phone cannot invalidate an otherwise current VIP READY cue.
