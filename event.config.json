@@ -13,9 +13,9 @@
   "tagline": "ONE ACTION. COLLECTIVE IMPACT.",
   "supportingMessage": "Together Towards Zero Waste to Landfill.",
   "descriptor": "Sustainability Action by Telkom Indonesia",
-  "logo": "/logo-reverse.png",
-  "logoVariant": "reverse",
-  "version": "2.0.0-vip-slide",
+  "logo": "/logo.png",
+  "logoVariant": "blue-on-white",
+  "version": "2.1.0-white-yellow-blue",
   "audio": {
     "ambient": "/audio/ambient.wav",
     "launch": "/audio/reveal.wav",
@@ -24,7 +24,7 @@
   },
   "primary": "#004781",
   "secondary": "#082C46",
-  "accent": "#36B37E",
+  "accent": "#F4C400",
   "target": 50,
   "cta": "SAYA SIAP BERAKSI",
   "animationMode": "cinematic",
@@ -44,3 +44,4 @@
     "vipSupporting": "GESER TOMBOL DI PERANGKAT VIP UNTUK MEMULAI"
   }
 }
+

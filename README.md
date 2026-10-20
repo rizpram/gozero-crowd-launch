@@ -1,7 +1,7 @@
 # GoZero% Crowd-Powered Launch v2
 
 Operational MVP for **KICK START ZERO WASTE TO LANDFILL — THE TELKOM HUB**.
-Official supplied reverse-white GoZero PNG is used unchanged. Blue `#004781` leads the visual system.
+White leads the visual system, with yellow `#F4C400` energy accents and official GoZero blue `#004781` typography. The supplied blue GoZero PNG is used unchanged on white.
 
 ## Live application
 
@@ -84,3 +84,4 @@ See `docs/OPERATOR-SOP.md`, `docs/CUE-SHEET.md`, `docs/AV-MANIFEST.json`, `docs/
 ## VIP access
 
 The VIP page is `/vip/[sessionId]`, accessed through the private operator-generated link/QR. A fragment token is exchanged once for an HttpOnly signed cookie bound to one browser, session and epoch. Link expires after eight hours. Regenerating or revoking the link invalidates the old device. Ordinary participants cannot trigger the VIP endpoint. The slide is blocked until VIP READY and on connection loss. Partial drag or tap cannot launch. Keyboard users hold the right arrow. See `docs/REVISION-V2.md`.
+

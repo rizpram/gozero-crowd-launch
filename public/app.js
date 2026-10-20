@@ -3,7 +3,7 @@ import {mountLed} from './led.js';
 const app=document.querySelector('#app');
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=s=>document.querySelector(s);
-const logo=c=>`<span class="reverse-brand"><img class="logo" src="${escape(c?.logo||'/logo-reverse.png')}" alt="GoZero% - Sustainability Action by Telkom Indonesia"></span>`;
+const logo=c=>`<span class="reverse-brand"><img class="logo" src="${escape(c?.logo||'/logo.png')}" alt="GoZero% - Sustainability Action by Telkom Indonesia"></span>`;
 let state,stream,clockOffset=0,busy=false,lastEpoch,contributed=false;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let messageTimer;
@@ -21,15 +21,15 @@ function orb(canvas,getState){
     const complete=s.state==='hero'||(s.state==='launch'&&elapsed>=(s.config?.countdownSeconds||5)+1.8);
     let p=complete?1:(s.energy||0)/100;if(previous!==s.count){pulse=1;previous=s.count;}pulse*=.975;
     const time=reduced||s.config?.animationMode==='reduced'?0:t,x=w/2,y=h/2,r=Math.min(w,h)*.33;
-    ctx.clearRect(0,0,w,h);const glow=ctx.createRadialGradient(x,y,r*.1,x,y,r*1.6);glow.addColorStop(0,'#0e7bb41c');glow.addColorStop(.6,'#0e7bb410');glow.addColorStop(1,'#0e7bb400');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
-    ctx.save();ctx.translate(x,y);for(let ring=0;ring<5;ring++){ctx.beginPath();ctx.ellipse(0,0,r*(1+ring*.11),r*(.7+ring*.07),-.36+Math.sin(time*.00005)*.05,0,Math.PI*2);ctx.strokeStyle=ring%2?'#4dc4ff16':'#4dc4ff25';ctx.lineWidth=1;ctx.stroke();}
-    for(let i=0;i<72;i++){const a=i/72*Math.PI*2-Math.PI/2;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*1.4,Math.sin(a)*r*1.4);ctx.lineTo(Math.cos(a)*r*(i%6?1.42:1.45),Math.sin(a)*r*(i%6?1.42:1.45));ctx.strokeStyle='#76b3d140';ctx.lineWidth=1;ctx.stroke();}
-    ctx.beginPath();ctx.arc(0,0,r,-Math.PI/2,Math.PI*1.5);ctx.strokeStyle='#5ac9ff16';ctx.lineWidth=4;ctx.stroke();
-    ctx.beginPath();ctx.arc(0,0,r,-Math.PI/2,-Math.PI/2+Math.max(.015,p)*Math.PI*2);ctx.strokeStyle='#69ccff';ctx.shadowBlur=20+25*pulse;ctx.shadowColor='#219ef5';ctx.lineWidth=4+2*pulse;ctx.lineCap='round';ctx.stroke();ctx.shadowBlur=0;
-    for(let k=0;k<3;k++){const rad=r*(.74-k*.12);ctx.beginPath();ctx.arc(0,0,rad,time*.00015*(k%2?-1:1)+k*2,time*.00015*(k%2?-1:1)+k*2+Math.PI*(1.1+p*.6));ctx.strokeStyle=k===2?'#36b37e88':'#39a5d35c';ctx.lineWidth=k===2?2:1;ctx.stroke();}
-    for(let i=0;i<12;i++){const a=i/12*Math.PI*2+time*.00008,rr=r*(.7+.08*Math.sin(i+time*.0004));ctx.beginPath();ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);ctx.lineTo(Math.cos(a+.6)*r*.45,Math.sin(a+.6)*r*.45);ctx.strokeStyle='#77c8ef20';ctx.lineWidth=1;ctx.stroke();}
-    particles.forEach((pt,i)=>{const a=pt.angle+time*pt.speed,rr=r*(pt.r+(1-p)*.6),xx=Math.cos(a)*rr,yy=Math.sin(a)*rr;ctx.beginPath();ctx.arc(xx,yy,i%7?1.3:3,0,Math.PI*2);ctx.fillStyle=i%13?'#65c7ff99':'#36b37e';ctx.fill();if(i%7===0){ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(Math.cos(a-.14)*rr,Math.sin(a-.14)*rr);ctx.strokeStyle='#4bb4ed35';ctx.stroke();}});
-    if(s.state==='live'||s.state==='lock'){ctx.textAlign='center';ctx.fillStyle='#d5f0ff';ctx.font=`300 ${r*.46}px Arial`;ctx.fillText(fmt(s.energy)+'%',0,r*.08);ctx.fillStyle='#8ab5ce';ctx.font=`${r*.055}px Arial`;ctx.fillText('COLLECTIVE ENERGY',0,r*.24);}
+    ctx.clearRect(0,0,w,h);const glow=ctx.createRadialGradient(x,y,r*.1,x,y,r*1.6);glow.addColorStop(0,'#f4c40026');glow.addColorStop(.6,'#f4c40012');glow.addColorStop(1,'#f4c40000');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+    ctx.save();ctx.translate(x,y);for(let ring=0;ring<5;ring++){ctx.beginPath();ctx.ellipse(0,0,r*(1+ring*.11),r*(.7+ring*.07),-.36+Math.sin(time*.00005)*.05,0,Math.PI*2);ctx.strokeStyle=ring%2?'#00478118':'#00478125';ctx.lineWidth=1;ctx.stroke();}
+    for(let i=0;i<72;i++){const a=i/72*Math.PI*2-Math.PI/2;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*1.4,Math.sin(a)*r*1.4);ctx.lineTo(Math.cos(a)*r*(i%6?1.42:1.45),Math.sin(a)*r*(i%6?1.42:1.45));ctx.strokeStyle='#00478140';ctx.lineWidth=1;ctx.stroke();}
+    ctx.beginPath();ctx.arc(0,0,r,-Math.PI/2,Math.PI*1.5);ctx.strokeStyle='#00478118';ctx.lineWidth=4;ctx.stroke();
+    ctx.beginPath();ctx.arc(0,0,r,-Math.PI/2,-Math.PI/2+Math.max(.015,p)*Math.PI*2);ctx.strokeStyle='#d8ad00';ctx.shadowBlur=20+25*pulse;ctx.shadowColor='#f4c400';ctx.lineWidth=4+2*pulse;ctx.lineCap='round';ctx.stroke();ctx.shadowBlur=0;
+    for(let k=0;k<3;k++){const rad=r*(.74-k*.12);ctx.beginPath();ctx.arc(0,0,rad,time*.00015*(k%2?-1:1)+k*2,time*.00015*(k%2?-1:1)+k*2+Math.PI*(1.1+p*.6));ctx.strokeStyle=k===2?'#e2b600bb':'#00478160';ctx.lineWidth=k===2?2:1;ctx.stroke();}
+    for(let i=0;i<12;i++){const a=i/12*Math.PI*2+time*.00008,rr=r*(.7+.08*Math.sin(i+time*.0004));ctx.beginPath();ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);ctx.lineTo(Math.cos(a+.6)*r*.45,Math.sin(a+.6)*r*.45);ctx.strokeStyle='#00478125';ctx.lineWidth=1;ctx.stroke();}
+    particles.forEach((pt,i)=>{const a=pt.angle+time*pt.speed,rr=r*(pt.r+(1-p)*.6),xx=Math.cos(a)*rr,yy=Math.sin(a)*rr;ctx.beginPath();ctx.arc(xx,yy,i%7?1.3:3,0,Math.PI*2);ctx.fillStyle=i%13?'#00478199':'#d8ad00';ctx.fill();if(i%7===0){ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(Math.cos(a-.14)*rr,Math.sin(a-.14)*rr);ctx.strokeStyle='#00478135';ctx.stroke();}});
+    if(s.state==='live'||s.state==='lock'){ctx.textAlign='center';ctx.fillStyle='#004781';ctx.font=`300 ${r*.46}px Arial`;ctx.fillText(fmt(s.energy)+'%',0,r*.08);ctx.fillStyle='#516b80';ctx.font=`${r*.055}px Arial`;ctx.fillText('COLLECTIVE ENERGY',0,r*.24);}
     ctx.restore();requestAnimationFrame(frame);
   }requestAnimationFrame(frame);
 }
@@ -80,3 +80,4 @@ async function operator(){let session='rehearsal',polling=false,ops;const pairin
 }
 const route=location.pathname.split('/').filter(Boolean);
 if(route[0]==='join')participant(route[1]);else if(route[0]==='led')led(route[1]);else if(route[0]==='vip')mountVip({id:route[1],app,request,connect,theme,logo,escape,modePill});else if(route[0]==='operator')operator();else app.innerHTML=`<section class="home"><div class="brand-plate">${logo()}</div><span class="eyebrow">CROWD-POWERED LAUNCH / THE TELKOM HUB</span><h1>ONE ACTION.<br>COLLECTIVE IMPACT.</h1><p>KICK START ZERO WASTE TO LANDFILL<br>Masuk ke rehearsal, buka layar LED, lalu kirim satu komitmen dari perangkat peserta.</p><div class="home-links"><a href="/operator">Operator Command Center ↗</a><a href="/led/rehearsal" target="_blank">LED output ↗</a><a href="/join/rehearsal" target="_blank">Participant page ↗</a></div><p class="small" style="margin-top:50px">Rehearsal dapat dijalankan tanpa kredensial produksi.<br>Aktivasi ini melambangkan komitmen bersama.</p></section>`;
+
