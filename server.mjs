@@ -78,20 +78,20 @@ export function makeApp(options={}) {
           if(['launch','hero'].includes(s.state))throw new ShowError('Launching telah berlangsung.');
           await body(req);const token=randomBytes(32).toString('base64url');
           s.vip={tokenHash:hmac(token),epoch:s.epoch,expiresAt:Date.now()+8*3600000,browser:null};
-          audit(s,'VIP_LINK_CREATED');finish(s);
+          audit(s,'VIP_LINK_CREATED');persist();broadcast(s);
           const link=(publicUrl||`http://${req.headers.host}`)+`/vip/${s.id}#token=${token}`;
           const qr=await QRCode.toDataURL(link,{width:360,margin:3,errorCorrectionLevel:'M'});
           return json(res,200,{url:link,qr,expiresAt:s.vip.expiresAt});
         }
         if(type==='vip-revoke'&&req.method==='POST'){
           if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
-          await body(req);s.vip=null;audit(s,'VIP_ACCESS_REVOKED');finish(s);return json(res,200,{ok:true});
+          await body(req);s.vip=null;audit(s,'VIP_ACCESS_REVOKED');persist();broadcast(s);return json(res,200,{ok:true});
         }
         if(type==='vip-access'&&req.method==='POST'){
           rate(req,'vip-access',20);const b=await body(req);
           if(!s.vip||s.vip.epoch!==s.epoch||s.vip.expiresAt<Date.now()||typeof b.token!=='string'||b.token.length>128||hmac(b.token)!==s.vip.tokenHash)throw new ShowError('Link VIP tidak valid atau kedaluwarsa. Minta link baru dari operator.',401);
           if(s.vip.browser&&!vipAuthorized(req,s))throw new ShowError('Link ini sudah dipasangkan ke satu perangkat VIP.',403);
-          if(!s.vip.browser){s.vip.browser=randomBytes(24).toString('hex');audit(s,'VIP_DEVICE_PAIRED');finish(s);}
+          if(!s.vip.browser){s.vip.browser=randomBytes(24).toString('hex');audit(s,'VIP_DEVICE_PAIRED');persist();broadcast(s);}
           res.setHeader('Set-Cookie',`gz_vip_${s.id}=${signed(s.vip.browser)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${production?'; Secure':''}`);
           return json(res,200,{ok:true,...publicState(s)});
         }

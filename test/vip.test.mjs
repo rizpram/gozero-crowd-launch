@@ -9,12 +9,12 @@ test('VIP links are operator-only, single-device, private, and inactive before V
   assert.equal((await f.post('/api/vip-pair/rehearsal')).status,401);
   assert.equal((await f.post('/api/vip-launch/rehearsal',{gesture:'slide-complete'})).status,401);
   const pair=await(await f.post('/api/vip-pair/rehearsal',{},f.operator)).json();const token=new URLSearchParams(new URL(pair.url).hash.slice(1)).get('token');assert.ok(pair.qr.startsWith('data:image/png;base64,'));
-  const publicState=await(await f.get('/api/state/rehearsal')).json();assert.equal('vip' in publicState,false);assert.ok(!JSON.stringify(publicState).includes(token));
+  const publicState=await(await f.get('/api/state/rehearsal')).json();assert.equal('vip' in publicState,false);assert.ok(!JSON.stringify(publicState).includes(token));assert.equal(publicState.revision,0);
   const paired=await f.post('/api/vip-access/rehearsal',{token});assert.equal(paired.status,200);const cookie=paired.headers.getSetCookie()[0].split(';')[0];
   assert.equal((await f.post('/api/vip-access/rehearsal',{token})).status,403);
   assert.equal((await f.post('/api/vip-launch/rehearsal',{epoch:publicState.epoch,gesture:'slide-complete'},cookie)).status,409);
   assert.equal((await f.post('/api/vip-launch/rehearsal',{epoch:publicState.epoch,gesture:'click'},cookie)).status,400);
-  const op=await(await f.get('/api/operator',f.operator)).json();assert.equal(op.vipStatus,'paired');
+  const op=await(await f.get('/api/operator',f.operator)).json();assert.equal(op.vipStatus,'paired');assert.equal(op.revision,0);
   const log=readFileSync(join(f.dir,'audit.ndjson'),'utf8');assert.ok(log.includes('VIP_DEVICE_PAIRED'));assert.ok(!log.includes(token));
 }finally{await f.close();}});
 test('paired VIP slide launches exactly once and preserves audience contribution metrics',async()=>{const f=await fixture();try{
