@@ -1,0 +1,26 @@
+{
+  "event": "KICK START ZERO WASTE TO LANDFILL — THE TELKOM HUB",
+  "output": {"width":1920,"height":1080,"composition":"16:9 with letterboxing","targetRefreshHz":60,"source":"Chromium window or display capture","hardwareSync":"not implemented"},
+  "inputs": {
+    "browserLive":"https://YOUR_HOST/led/live",
+    "browserRehearsal":"http://127.0.0.1:3100/led/rehearsal",
+    "offlineHero":"backup/hero.html",
+    "rehearsalSting":"public/launch.wav"
+  },
+  "sound": {"status":"original synthesized rehearsal placeholder; production approval required","durationSeconds":4,"sampleRate":44100,"channels":1,"bits":16,"playAtSecondsAfterLaunch":5,"browserGestureRequired":true,"maxAudibleSources":1},
+  "cues": [
+    {"id":"AV01","state":"holding","trigger":"operator HOLDING","hold":"indefinite"},
+    {"id":"AV02","state":"qr","trigger":"operator SHOW QR","hold":"indefinite"},
+    {"id":"INT03","state":"live","trigger":"operator START","hold":"until target or operator intervention"},
+    {"id":"AV04","state":"lock","trigger":"actual count reaches target","audienceEnergy":95,"hold":"indefinite"},
+    {"id":"VIP05","state":"vip","trigger":"operator VIP READY + confirmation","hold":"indefinite"},
+    {"id":"AV06","state":"launch","trigger":"operator TRIGGER LAUNCH + confirmation","countdownSeconds":5,"revealDurationSeconds":12},
+    {"id":"AV07","state":"hero","trigger":"automatic at 17 seconds or confirmed manual hero","hold":"indefinite"}
+  ],
+  "playbackNotes": {
+    "vMix":"Capture dedicated Chromium LED window/display; match 1920x1080. Preview iframe is silent. Verify actual routing on site.",
+    "Resolume":"Use a separate workstation display capture path supported by your setup; or manually switch to local hero backup. No native network cue protocol is included.",
+    "LEDWorkstation":"Wired Ethernet, AC power, fullscreen output, disable notifications/sleep. ARM AUDIO only on the intended audible output.",
+    "recovery":"SSE uses snapshot recovery with server timestamp; missed audio is not automatically replayed late. Re-arm after refresh."
+  }
+}
