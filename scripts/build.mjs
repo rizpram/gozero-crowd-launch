@@ -10,6 +10,7 @@ if(!['cinematic','reduced'].includes(c.animationMode))throw Error('Invalid anima
 if(!Number.isInteger(c.countdownSeconds)||c.countdownSeconds<1||c.countdownSeconds>30||c.launchDuration<1||c.launchDuration>60)throw Error('Invalid cue duration');
 if(!existsSync(join(pub,c.logo.slice(1))))throw Error('Official logo is required');
 for(let i=0;i<=Math.min(10,c.countdownSeconds);i++)if(!existsSync(join(pub,`audio/count-${i}.wav`)))throw Error('Missing countdown voice asset');
+if(!existsSync(join(pub,c.audio.ambient.slice(1))))throw Error('Missing background audio asset');
 // Original synthesized rehearsal cue, 4 seconds. Replace only with production-approved WAV.
 const rate=44100,seconds=4,n=rate*seconds,buf=Buffer.alloc(44+n*2);
 buf.write('RIFF',0);buf.writeUInt32LE(36+n*2,4);buf.write('WAVEfmt ',8);buf.writeUInt32LE(16,16);buf.writeUInt16LE(1,20);buf.writeUInt16LE(1,22);buf.writeUInt32LE(rate,24);buf.writeUInt32LE(rate*2,28);buf.writeUInt16LE(2,32);buf.writeUInt16LE(16,34);buf.write('data',36);buf.writeUInt32LE(n*2,40);

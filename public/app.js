@@ -45,7 +45,7 @@ async function participant(id){
   draw();connect(id,'participant',async s=>{online=true;state=s;if(lastEpoch!==s.epoch||$('.participant-top img')?.getAttribute('src')!==s.config.logo){lastEpoch=s.epoch;contributed=false;draw();}else update();},connected=>{online=connected;update();if(!connected){toast('Menghubungkan ulang… tunggu sampai tersambung.');}else request(`/api/state/${id}`).then(s=>{state=s;if(s.contributed!==contributed){contributed=s.contributed;draw();}update();}).catch(()=>{online=false;update();});});
 }
 const stageCopy=s=>{const c=s.config,lines=text=>escape(text).replaceAll('\n','<br>');switch(s.state){
- case 'qr':return `<span class="eyebrow">BE PART OF THE CHANGE</span><h1>${escape(c.copy.join)}</h1><p>${escape(c.copy.joinSupporting)}</p>`;
+ case 'qr':return `<span class="eyebrow">BE PART OF THE CHANGE</span><h1>${lines(c.copy.join)}</h1><p>${escape(c.copy.joinSupporting)}</p>`;
  case 'live':case 'lock':return `<span class="eyebrow">Zero Waste Starts with Us</span><h1>${lines(c.copy.live)}</h1>`;
  case 'vip':return `<span class="eyebrow">Zero Waste to Landfill</span><h1>ONE FINAL<br>ACTION</h1><p>${escape(c.copy.vipSupporting)}</p>`;
  default:return `<span class="eyebrow">Zero Waste to Landfill</span><h1>INDIVIDUAL ACTIONS.<br>ONE SHARED COMMITMENT.<br>A COLLECTIVE MOVEMENT</h1>`;

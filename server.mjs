@@ -161,9 +161,9 @@ export function makeApp(options={}) {
       }
       if(req.method!=='GET')throw new ShowError('Not found',404);
       let file=url.pathname==='/'||/^\/(operator|join\/[a-z0-9-]+|led\/[a-z0-9-]+|vip\/[a-z0-9-]+)$/.test(url.pathname)?'index.html':decodeURIComponent(url.pathname).slice(1);
-      if(!['index.html','app.js','led.js','vip.js','sound.js','show-flow.js','style.css','revision.css','logo.png','brand-kv.png','logo-reverse.png','launch.wav','audio/ambient.wav','audio/reveal.wav',...Array.from({length:11},(_,i)=>`audio/count-${i}.wav`)].includes(file))throw new ShowError('Not found',404);
+      if(!['index.html','app.js','led.js','vip.js','sound.js','show-flow.js','style.css','revision.css','logo.png','brand-kv.png','logo-reverse.png','launch.wav','audio/ambient.wav','audio/science-and-technology.mp3','audio/reveal.wav',...Array.from({length:11},(_,i)=>`audio/count-${i}.wav`)].includes(file))throw new ShowError('Not found',404);
       const bytes=readFileSync(join(ROOT,'public',file));
-      const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.wav':'audio/wav'};
+      const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.wav':'audio/wav','.mp3':'audio/mpeg'};
       res.writeHead(200,{'Content-Type':mime[extname(file)],'Cache-Control':'no-cache'});res.end(bytes);
     }catch(e){if(!res.headersSent)json(res,e.status||500,{error:e.status?e.message:'Kesalahan server. Periksa log lokal.'});else res.end();if(!e.status)console.error(e.message);}
   });

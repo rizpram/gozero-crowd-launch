@@ -17,7 +17,7 @@
   "logoVariant": "blue-on-white",
   "version": "3.0.0-activation",
   "audio": {
-    "ambient": "/audio/ambient.wav",
+    "ambient": "/audio/science-and-technology.mp3",
     "launch": "/audio/reveal.wav",
     "voiceBase": "/audio/count-",
     "volume": 0.65
@@ -31,7 +31,7 @@
   "countdownSeconds": 3,
   "launchDuration": 2,
   "copy": {
-    "join": "Zero Waste Starts with Us",
+    "join": "Zero Waste\nStarts with Us",
     "joinSupporting": "Scan the QR code to join our collective commitment to the Zero Waste to Landfill journey at The Telkom Hub.",
     "welcome": "Join us, because every little action counts",
     "live": "INDIVIDUAL ACTIONS.\nONE SHARED COMMITMENT.\nA COLLECTIVE MOVEMENT",

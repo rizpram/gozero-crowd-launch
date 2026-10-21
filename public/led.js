@@ -25,7 +25,7 @@ export async function mountLed({id,app,request,connect,theme,logo,escape,stageCo
 
   }
   const slider=document.querySelector('#led-slider');slider.hidden=state!=='vip';
-  if(state==='vip'){const v=s.vipSlide||{},p=f.serverTime-(v.at||0)<1500?Math.max(0,Math.min(1,v.progress||0)):0;slider.style.setProperty('--slide',p);slider.querySelector('.led-slide-thumb').style.transform=`translateX(${p*820}px)`;slider.classList.toggle('moving',p>0);}
+  if(state==='vip'){const v=s.vipSlide||{},p=f.serverTime-(v.at||0)<1500?Math.max(0,Math.min(1,v.progress||0)):0;slider.style.setProperty('--slide',p);slider.querySelector('.led-slide-thumb').style.transform=`translateX(${p*820}px)`;slider.classList.toggle('moving',p>0);if(!embedded)sound.setSlideMode(p>0);}else if(!embedded)sound.setSlideMode(false);
   if(phase==='countdown'){const n=Math.max(1,Math.ceil(s.config.countdownSeconds-(f.serverTime-s.launchAt)/1000));if(n!==lastCount){lastCount=n;const el=document.querySelector('#count-number');el.textContent=n;el.classList.remove('number-enter');void el.offsetWidth;el.classList.add('number-enter');}}
   if(!embedded)sound.setFinaleMode(phase==='activated');
   requestAnimationFrame(animate);
