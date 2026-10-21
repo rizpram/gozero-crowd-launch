@@ -10,12 +10,12 @@
     "ZERO WASTE TO LANDFILL"
   ],
   "venue": "THE TELKOM HUB",
-  "tagline": "ONE ACTION. COLLECTIVE IMPACT.",
+  "tagline": "BE PART OF THE CHANGE",
   "supportingMessage": "Together Towards Zero Waste to Landfill.",
   "descriptor": "Sustainability Action by Telkom Indonesia",
-  "logo": "/logo.png",
+  "logo": "/brand-kv.png",
   "logoVariant": "blue-on-white",
-  "version": "2.1.0-white-yellow-blue",
+  "version": "3.0.0-activation",
   "audio": {
     "ambient": "/audio/ambient.wav",
     "launch": "/audio/reveal.wav",
@@ -26,22 +26,23 @@
   "secondary": "#082C46",
   "accent": "#F4C400",
   "target": 50,
-  "cta": "SAYA SIAP BERAKSI",
+  "cta": "ACTIVATE NOW",
   "animationMode": "cinematic",
-  "countdownSeconds": 5,
-  "launchDuration": 12,
+  "countdownSeconds": 3,
+  "launchDuration": 2,
   "copy": {
-    "join": "SATU AKSI, DAMPAK BERSAMA",
-    "joinSupporting": "Scan QR Code dan ikut aktifkan gerakan Zero Waste to Landfill.",
-    "welcome": "Jadilah bagian dari gerakan Zero Waste to Landfill di The Telkom Hub.",
-    "live": "BERSAMA KITA BERGERAK",
-    "lock": "ENERGI BERSAMA TELAH TERKUMPUL",
+    "join": "Zero Waste Starts with Us",
+    "joinSupporting": "Scan the QR code to join our collective commitment to the Zero Waste to Landfill journey at The Telkom Hub.",
+    "welcome": "Join us, because every little action counts",
+    "live": "INDIVIDUAL ACTIONS.\nONE SHARED COMMITMENT.\nA COLLECTIVE MOVEMENT",
+    "lock": "INDIVIDUAL ACTIONS.\nONE SHARED COMMITMENT.\nA COLLECTIVE MOVEMENT",
     "lockSupporting": "SIAP MENUJU AKTIVASI AKHIR",
     "vip": "ONE FINAL ACTION",
     "reveal": "KICK START ZERO WASTE TO LANDFILL",
-    "success": "TERIMA KASIH SUDAH BERPARTISIPASI!",
-    "successSupporting": "Aksimu telah bergabung dalam energi kolektif menuju Zero Waste to Landfill.",
-    "vipSupporting": "GESER TOMBOL DI PERANGKAT VIP UNTUK MEMULAI"
-  }
+    "success": "THANK YOU FOR TAKING ACTION",
+    "successSupporting": "Your commitment is part of our collective movement.",
+    "vipSupporting": "Activate Zero Waste to Landfill at The Telkom Hub"
+  },
+  "energyFillSeconds": 4,
+  "activatedHoldSeconds": 2
 }
-

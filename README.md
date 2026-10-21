@@ -1,7 +1,25 @@
-# GoZero% Crowd-Powered Launch v2
+# GoZero% Crowd-Powered Launch v3
 
 Operational MVP for **KICK START ZERO WASTE TO LANDFILL — THE TELKOM HUB**.
-White leads the visual system, with yellow `#F4C400` energy accents and official GoZero blue `#004781` typography. The supplied blue GoZero PNG is used unchanged on white.
+White leads the visual system, with yellow `#F4C400` energy accents and official GoZero blue `#004781` typography. The official Danantara–GoZero–BISA–Telkom row is extracted from the supplied Kick Start Zero Waste.psd, without recoloring.
+
+## Activation revision (21 October 2026)
+
+Participant, QR and VIP copy follows the approved Putri revision. Public screens omit rehearsal badges, duplicate footers and left-hand contribution counts. LED does not mirror the VIP phone.
+
+The display-only ceremony fills to **100% over 4 seconds before VIP activation**. Actual contributions and audience energy (capped at 95%) remain separate in the operator dashboard and audit log. VIP READY starts this fill when activating early; the backend rejects any launch until it completes. One full swipe triggers **3–2–1 → System Activated (2 seconds) → production video**.
+
+Before rehearsal, log into `/operator` and use **Aset produksi**:
+
+1. Export the approved KV logo row (Danantara – GoZero – BISA – Telkom) as PNG/WebP/JPEG, then upload it using PASANG LOGO KV. Maximum 10 MB. PSD is the source artwork, not a browser image.
+2. Upload the approved Mas Rangga MP4/WebM (maximum 200 MB) using PASANG VIDEO.
+3. Open LED output, click AKTIFKAN AUDIO once, and confirm PRELOADED on the operator dashboard. Check actual audio desk output and test the full cue.
+4. Start contributions, then VIP READY. The LED completes the energy animation and holds the independent VIP standby screen. The paired phone slider unlocks after completion.
+5. VIP swipes once. One LED workstation plays countdown/reveal audio, then its ambient/score yields to video audio. Operator preview stays muted.
+
+Uploaded assets persist in the existing data volume and are shared across live and rehearsal. Uploads are operator-only, restricted by file type and size, and blocked while any session is at lock/VIP/launch. Show controls wait for in-progress uploads. Assets are intentionally served as public event media. The approved four-logo KV row is bundled. The actual Mas Rangga film still needs to be uploaded. Missing or failed video holds System Activated instead of showing a substitute film. An autoplay rejection exposes PUTAR VIDEO on the LED workstation.
+
+Validation: 14 automated engine/HTTP/media tests, plus browser checks for the completion gate, cancelled partial swipe, completed swipe, countdown sequence, System Activated, audible video handoff, clean mobile page and no LED mirroring. QA video/logo uploads are local fixtures only.
 
 ## Live application
 

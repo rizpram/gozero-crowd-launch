@@ -4,14 +4,17 @@ import {join,resolve,extname,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,createHmac,timingSafeEqual,scryptSync} from 'node:crypto';
 import QRCode from 'qrcode';
+import {mediaStore} from './media.mjs';
 import {createSession,energy,contribute,action,ShowError} from './engine.mjs';
 const ROOT=dirname(fileURLToPath(import.meta.url));
 export function makeApp(options={}) {
-  const config=JSON.parse(readFileSync(join(ROOT,'event.config.json')));
+  const config={...JSON.parse(readFileSync(join(ROOT,'event.config.json'))),...options.config};
   if(!Number.isInteger(config.target)||config.target<30||config.target>100) throw Error('Invalid target');
   if(process.env.RAILWAY_ENVIRONMENT_ID && !process.env.RAILWAY_VOLUME_MOUNT_PATH && !options.dataDir)throw Error('Attach a persistent Railway volume before starting the show.');
   const data=resolve(options.dataDir||process.env.RAILWAY_VOLUME_MOUNT_PATH||process.env.DATA_DIR||join(ROOT,'data'));
   mkdirSync(data,{recursive:true});
+  const media=mediaStore(data);let mediaUploading=false;
+  const showConfig=()=>({...config,media:{...media.config(),brandReady:true},logo:media.config().brandUrl||config.logo});
   const production=options.production??process.env.NODE_ENV==='production';
   const password=options.password||process.env.OPERATOR_PASSWORD||(production?'':'gozero-rehearsal');
   if(!password || (production && (password.length<16||password==='gozero-rehearsal')))throw Error('Production requires OPERATOR_PASSWORD of at least 16 characters.');
@@ -37,7 +40,7 @@ export function makeApp(options={}) {
   const vipAuthorized=(req,s)=>{const value=verify(cookies(req)['gz_vip_'+s.id]);return !!(s.vip && s.vip.epoch===s.epoch && s.vip.expiresAt>Date.now() && value===s.vip.browser);};
   const identity=(req,res)=>{let id=verify(cookies(req).gz_device);if(!id){id=randomBytes(24).toString('hex');res.setHeader('Set-Cookie',`gz_device=${signed(id)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800${production?'; Secure':''}`);}return hmac(id);};
   const audit=(s,event,detail={})=>appendFileSync(join(data,'audit.ndjson'),JSON.stringify({at:new Date().toISOString(),session:s.id,mode:s.mode,epoch:s.epoch,event,revision:s.revision,...detail})+'\n',{mode:0o600});
-  const publicState=s=>({id:s.id,mode:s.mode,epoch:s.epoch,state:s.state,accepting:s.accepting,target:s.target,count:s.contributions.length,energy:energy(s),early:s.early,launchAt:s.launchAt,revision:s.revision,updatedAt:s.updatedAt,serverTime:Date.now(),config});
+  const publicState=s=>({id:s.id,mode:s.mode,epoch:s.epoch,state:s.state,accepting:s.accepting,target:s.target,count:s.contributions.length,energy:energy(s),early:s.early,launchAt:s.launchAt,ceremonyAt:s.ceremonyAt||null,ceremonyFrom:s.ceremonyFrom??energy(s),revision:s.revision,updatedAt:s.updatedAt,serverTime:Date.now(),config:showConfig()});
   const stats=s=>({connectedParticipants:new Set([...clients].filter(c=>c.id===s.id&&c.role==='participant').map(c=>c.identity)).size,leds:[...leds.values()].filter(l=>l.session===s.id&&Date.now()-l.at<12000)});
   const broadcast=s=>{for(const c of clients)if(c.id===s.id)c.res.write(`data: ${JSON.stringify(publicState(s))}\n\n`);};
   const finish=s=>{s.revision++;s.updatedAt=Date.now();persist();broadcast(s);};
@@ -52,7 +55,15 @@ export function makeApp(options={}) {
       if(req.method==='POST'){
         const expectedOrigin=publicUrl?new URL(publicUrl).origin:`http://${req.headers.host}`;
         if(req.headers.origin!==expectedOrigin)throw new ShowError('Origin tidak diizinkan.',403);
-        if(!String(req.headers['content-type']).startsWith('application/json'))throw new ShowError('JSON required',415);
+        if(!/^\/api\/media\/(brand|video)$/.test(url.pathname)&&!String(req.headers['content-type']).startsWith('application/json'))throw new ShowError('JSON required',415);
+      }
+      const asset=url.pathname.match(/^\/media\/(brand|video)$/);
+      if(asset&&['GET','HEAD'].includes(req.method))return media.serve(req,res,asset[1]);
+      const upload=url.pathname.match(/^\/api\/media\/(brand|video)$/);
+      if(upload&&req.method==='POST'){
+        if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
+        if(Object.values(sessions).some(s=>['vip','launch','lock'].includes(s.state)))throw new ShowError('Ubah aset sebelum cue VIP atau aktivasi.');
+        if(mediaUploading)throw new ShowError('Unggahan lain sedang berlangsung.');rate(req,'media-upload',12);mediaUploading=true;try{const result=await media.upload(req,upload[1]);for(const s of Object.values(sessions)){audit(s,'MEDIA_UPDATED',{kind:upload[1]});broadcast(s);}return json(res,200,result);}finally{mediaUploading=false;}
       }
       if(url.pathname==='/health')return json(res,200,{ok:true});
       if(url.pathname==='/api/login'&&req.method==='POST'){
@@ -122,23 +133,23 @@ export function makeApp(options={}) {
         }
         if(type==='contribute'&&req.method==='POST'){
           rate(req,'contribute',240);const b=await body(req);if(b.epoch!==s.epoch)throw new ShowError('Sesi diperbarui. Muat ulang halaman.');
-          const who=hmac(s.epoch+identity(req,res)),accepted=contribute(s,who);
+          const who=hmac(s.epoch+identity(req,res)),accepted=contribute(s,who,config);
           if(accepted){audit(s,'CONTRIBUTION',{count:s.contributions.length});finish(s);}return json(res,200,{...publicState(s),contributed:true,duplicate:!accepted});
         }
         if(type==='action'&&req.method==='POST'){
           if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
-          const b=await body(req);if(b.revision!==s.revision)throw new ShowError('State telah berubah. Periksa cue dan ulangi.');
+          if(mediaUploading)throw new ShowError('Tunggu unggahan aset selesai.');const b=await body(req);if(b.revision!==s.revision)throw new ShowError('State telah berubah. Periksa cue dan ulangi.');
           const before=s.state;action(s,b.action,b,config);audit(s,b.action,{before,after:s.state,reason:String(b.reason||'').slice(0,300),early:s.early,count:s.contributions.length,energy:energy(s)});finish(s);return json(res,200,publicState(s));
         }
         if(type==='led'&&req.method==='POST'){
           rate(req,'led',240);const b=await body(req);if(!/^[a-f0-9-]{36}$/.test(b.id))throw new ShowError('Invalid screen ID',400);
-          if(leds.size>500)leds.clear();leds.set(b.id,{id:b.id,session:s.id,at:Date.now(),state:s.state,audio:b.audio===true,assets:b.assets===true,visible:b.visible===true});return json(res,200,{ok:true});
+          if(leds.size>500)leds.clear();leds.set(b.id,{id:b.id,session:s.id,at:Date.now(),state:s.state,audio:b.audio===true,assets:b.assets===true,videoReady:b.videoReady===true,visible:b.visible===true});return json(res,200,{ok:true});
         }
         throw new ShowError('Method not allowed',405);
       }
       if(req.method!=='GET')throw new ShowError('Not found',404);
       let file=url.pathname==='/'||/^\/(operator|join\/[a-z0-9-]+|led\/[a-z0-9-]+|vip\/[a-z0-9-]+)$/.test(url.pathname)?'index.html':decodeURIComponent(url.pathname).slice(1);
-      if(!['index.html','app.js','led.js','vip.js','sound.js','style.css','revision.css','logo.png','logo-reverse.png','launch.wav','audio/ambient.wav','audio/reveal.wav',...Array.from({length:11},(_,i)=>`audio/count-${i}.wav`)].includes(file))throw new ShowError('Not found',404);
+      if(!['index.html','app.js','led.js','vip.js','sound.js','show-flow.js','style.css','revision.css','logo.png','brand-kv.png','logo-reverse.png','launch.wav','audio/ambient.wav','audio/reveal.wav',...Array.from({length:11},(_,i)=>`audio/count-${i}.wav`)].includes(file))throw new ShowError('Not found',404);
       const bytes=readFileSync(join(ROOT,'public',file));
       const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.wav':'audio/wav'};
       res.writeHead(200,{'Content-Type':mime[extname(file)],'Cache-Control':'no-cache'});res.end(bytes);
