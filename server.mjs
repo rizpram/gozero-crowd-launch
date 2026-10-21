@@ -15,10 +15,10 @@ export function makeApp(options={}) {
   const data=resolve(options.dataDir||process.env.RAILWAY_VOLUME_MOUNT_PATH||process.env.DATA_DIR||join(ROOT,'data'));
   mkdirSync(data,{recursive:true});
   const media=mediaStore(data);let mediaUploading=false;
-  const showConfig=()=>({...config,media:{...media.config(),brandReady:true},logo:media.config().brandUrl||config.logo});
+  const showConfig=()=>{const assets=media.config();return {...config,media:{...assets,brandReady:true},logo:assets.brandUrl||config.logo,audio:{...config.audio,activated:assets.activationUrl||config.audio.activated||null}};};
   const production=options.production??process.env.NODE_ENV==='production';
   const password=options.password||process.env.OPERATOR_PASSWORD||(production?'':'gozero-rehearsal');
-  if(!password || (production && (password.length<16||password==='gozero-rehearsal')))throw Error('Production requires OPERATOR_PASSWORD of at least 16 characters.');
+  if(!password || (production && (password.length<Number(process.env.OPERATOR_PASSWORD_MIN_LENGTH||16)||password==='gozero-rehearsal')))throw Error('Production operator password does not meet the configured requirements.');
   const publicUrl=options.publicUrl||process.env.PUBLIC_URL||(process.env.RAILWAY_PUBLIC_DOMAIN?`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`:'');
   if(production && !/^https:\/\//.test(publicUrl))throw Error('Production requires PUBLIC_URL=https://your-host');
   const enableLive=options.enableLive??process.env.ENABLE_LIVE==='1';
@@ -58,11 +58,11 @@ export function makeApp(options={}) {
       if(req.method==='POST'){
         const expectedOrigin=publicUrl?new URL(publicUrl).origin:`http://${req.headers.host}`;
         if(req.headers.origin!==expectedOrigin)throw new ShowError('Origin tidak diizinkan.',403);
-        if(!/^\/api\/media\/(brand)$/.test(url.pathname)&&!String(req.headers['content-type']).startsWith('application/json'))throw new ShowError('JSON required',415);
+        if(!/^\/api\/media\/(brand|activation)$/.test(url.pathname)&&!String(req.headers['content-type']).startsWith('application/json'))throw new ShowError('JSON required',415);
       }
-      const asset=url.pathname.match(/^\/media\/(brand)$/);
+      const asset=url.pathname.match(/^\/media\/(brand|activation)$/);
       if(asset&&['GET','HEAD'].includes(req.method))return media.serve(req,res,asset[1]);
-      const upload=url.pathname.match(/^\/api\/media\/(brand)$/);
+      const upload=url.pathname.match(/^\/api\/media\/(brand|activation)$/);
       if(upload&&req.method==='POST'){
         if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
         if(Object.values(sessions).some(s=>['vip','launch','lock'].includes(s.state)))throw new ShowError('Ubah aset sebelum cue VIP atau aktivasi.');
