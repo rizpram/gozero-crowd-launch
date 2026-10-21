@@ -43,6 +43,5 @@
     "successSupporting": "Your commitment is part of our collective movement.",
     "vipSupporting": "Activate Zero Waste to Landfill at The Telkom Hub"
   },
-  "energyFillSeconds": 4,
-  "activatedHoldSeconds": 2
+  "energyFillSeconds": 4
 }

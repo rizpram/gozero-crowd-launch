@@ -9,7 +9,7 @@ export function vipReady(s, now=s.serverTime||Date.now()) {
   return s.state==='vip'&&now>=(s.ceremonyAt||0)+(s.config?.energyFillSeconds||0)*1000;
 }
 export function launchPhase(s, now=s.serverTime||Date.now()) {
-  if(s.state!=='launch')return s.state==='hero'?'video':'standby';
+  if(s.state!=='launch')return s.state==='hero'?'activated':'standby';
   const elapsed=(now-s.launchAt)/1000,cd=s.config.countdownSeconds;
-  return elapsed<cd?'countdown':elapsed<cd+(s.config.activatedHoldSeconds??2)?'activated':'video';
+  return elapsed<cd?'countdown':'activated';
 }

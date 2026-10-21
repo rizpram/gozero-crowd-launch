@@ -55,11 +55,11 @@ export function makeApp(options={}) {
       if(req.method==='POST'){
         const expectedOrigin=publicUrl?new URL(publicUrl).origin:`http://${req.headers.host}`;
         if(req.headers.origin!==expectedOrigin)throw new ShowError('Origin tidak diizinkan.',403);
-        if(!/^\/api\/media\/(brand|video)$/.test(url.pathname)&&!String(req.headers['content-type']).startsWith('application/json'))throw new ShowError('JSON required',415);
+        if(!/^\/api\/media\/(brand)$/.test(url.pathname)&&!String(req.headers['content-type']).startsWith('application/json'))throw new ShowError('JSON required',415);
       }
-      const asset=url.pathname.match(/^\/media\/(brand|video)$/);
+      const asset=url.pathname.match(/^\/media\/(brand)$/);
       if(asset&&['GET','HEAD'].includes(req.method))return media.serve(req,res,asset[1]);
-      const upload=url.pathname.match(/^\/api\/media\/(brand|video)$/);
+      const upload=url.pathname.match(/^\/api\/media\/(brand)$/);
       if(upload&&req.method==='POST'){
         if(!authorized(req))throw new ShowError('Login operator diperlukan.',401);
         if(Object.values(sessions).some(s=>['vip','launch','lock'].includes(s.state)))throw new ShowError('Ubah aset sebelum cue VIP atau aktivasi.');
@@ -143,7 +143,7 @@ export function makeApp(options={}) {
         }
         if(type==='led'&&req.method==='POST'){
           rate(req,'led',240);const b=await body(req);if(!/^[a-f0-9-]{36}$/.test(b.id))throw new ShowError('Invalid screen ID',400);
-          if(leds.size>500)leds.clear();leds.set(b.id,{id:b.id,session:s.id,at:Date.now(),state:s.state,audio:b.audio===true,assets:b.assets===true,videoReady:b.videoReady===true,visible:b.visible===true});return json(res,200,{ok:true});
+          if(leds.size>500)leds.clear();leds.set(b.id,{id:b.id,session:s.id,at:Date.now(),state:s.state,audio:b.audio===true,assets:b.assets===true,visible:b.visible===true});return json(res,200,{ok:true});
         }
         throw new ShowError('Method not allowed',405);
       }
