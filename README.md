@@ -5,7 +5,7 @@ White leads the visual system, with yellow `#F4C400` energy accents and official
 
 ## Activation revision (21 October 2026)
 
-Participant, QR and VIP copy follows the approved Putri revision. Public screens omit rehearsal badges, duplicate footers and left-hand contribution counts. LED does not mirror the VIP phone.
+Participant, QR and VIP copy follows the approved Putri revision. Public screens omit rehearsal badges, duplicate footers and left-hand contribution counts. The LED shows a large stage slider following the paired VIP phone in real time. Cancelled swipes return to zero; progress expires after 1.5 seconds without updates. Progress never launches the show; the existing authenticated completion endpoint remains required.
 
 The display-only ceremony fills to **100% over 4 seconds before VIP activation**. Actual contributions and audience energy (capped at 95%) remain separate in the operator dashboard and audit log. VIP READY starts this fill when activating early; the backend rejects any launch until it completes. One full swipe triggers **3–2–1 → System Activated**, which holds on the LED. The multimedia team plays the video separately; this app has no video upload or player..
 

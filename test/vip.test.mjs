@@ -23,6 +23,13 @@ test('paired VIP slide launches exactly once and preserves audience contribution
   const pair=await(await f.post('/api/vip-pair/rehearsal',{},f.operator)).json();const token=new URLSearchParams(new URL(pair.url).hash.slice(1)).get('token');
   const r=await f.post('/api/vip-access/rehearsal',{token}),cookie=r.headers.getSetCookie()[0].split(';')[0];s=await(await f.get('/api/state/rehearsal')).json();
   await f.post('/api/action/rehearsal',{action:'VIP',confirm:true,early:true,reason:'VIP stage timing rehearsal',revision:s.revision},f.operator);
+  assert.equal((await f.post('/api/vip-progress/rehearsal',{epoch:s.epoch,progress:.5})).status,401);
+  assert.equal((await f.post('/api/vip-progress/rehearsal',{epoch:s.epoch,progress:2},cookie)).status,400);
+  const before=await(await f.get('/api/state/rehearsal')).json();
+  assert.equal((await f.post('/api/vip-progress/rehearsal',{epoch:s.epoch,progress:.5},cookie)).status,200);
+  const moving=await(await f.get('/api/state/rehearsal')).json();assert.equal(moving.vipSlide.progress,.5);assert.equal(moving.state,'vip');assert.equal(moving.revision,before.revision);assert.equal(moving.count,before.count);
+  assert.equal((await f.post('/api/vip-progress/rehearsal',{epoch:s.epoch,progress:0},cookie)).status,200);
+  assert.equal((await(await f.get('/api/state/rehearsal')).json()).vipSlide.progress,0);
   const results=await Promise.all(Array.from({length:8},()=>f.post('/api/vip-launch/rehearsal',{epoch:s.epoch,gesture:'slide-complete'},cookie)));
   assert.ok(results.every(r=>r.status===200));s=await(await f.get('/api/state/rehearsal')).json();assert.equal(s.state,'launch');assert.equal(s.count,1);assert.ok(Math.abs(s.energy-1.9)<1e-9);assert.ok(s.launchAt);
   assert.equal(readFileSync(join(f.dir,'audit.ndjson'),'utf8').split('VIP_SLIDE_LAUNCH').length-1,1);

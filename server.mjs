@@ -4,6 +4,7 @@ import {join,resolve,extname,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,createHmac,timingSafeEqual,scryptSync} from 'node:crypto';
 import QRCode from 'qrcode';
+import {vipReady} from './public/show-flow.js';
 import {mediaStore} from './media.mjs';
 import {createSession,energy,contribute,action,ShowError} from './engine.mjs';
 const ROOT=dirname(fileURLToPath(import.meta.url));
@@ -31,6 +32,8 @@ export function makeApp(options={}) {
   if(!enableLive)delete sessions.live;
   const persist=()=>{ const tmp=snapshot+'.tmp'; writeFileSync(tmp,JSON.stringify(sessions),{mode:0o600});renameSync(tmp,snapshot); };
   persist();
+  const slides=new Map();
+  const slideState=s=>{const v=slides.get(s.id);return v&&v.epoch===s.epoch&&v.browser===s.vip?.browser&&s.state==='vip'?{progress:v.progress,at:v.at}:{progress:0,at:0};};
   const clients=new Set(), operators=new Map(), rates=new Map(), leds=new Map();
   const salt=randomBytes(16), expected=scryptSync(password,salt,32);
   const cookies=req=>Object.fromEntries((req.headers.cookie||'').split(';').map(x=>x.trim().split('=')));
@@ -40,7 +43,7 @@ export function makeApp(options={}) {
   const vipAuthorized=(req,s)=>{const value=verify(cookies(req)['gz_vip_'+s.id]);return !!(s.vip && s.vip.epoch===s.epoch && s.vip.expiresAt>Date.now() && value===s.vip.browser);};
   const identity=(req,res)=>{let id=verify(cookies(req).gz_device);if(!id){id=randomBytes(24).toString('hex');res.setHeader('Set-Cookie',`gz_device=${signed(id)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800${production?'; Secure':''}`);}return hmac(id);};
   const audit=(s,event,detail={})=>appendFileSync(join(data,'audit.ndjson'),JSON.stringify({at:new Date().toISOString(),session:s.id,mode:s.mode,epoch:s.epoch,event,revision:s.revision,...detail})+'\n',{mode:0o600});
-  const publicState=s=>({id:s.id,mode:s.mode,epoch:s.epoch,state:s.state,accepting:s.accepting,target:s.target,count:s.contributions.length,energy:energy(s),early:s.early,launchAt:s.launchAt,ceremonyAt:s.ceremonyAt||null,ceremonyFrom:s.ceremonyFrom??energy(s),revision:s.revision,updatedAt:s.updatedAt,serverTime:Date.now(),config:showConfig()});
+  const publicState=s=>({id:s.id,mode:s.mode,epoch:s.epoch,state:s.state,accepting:s.accepting,target:s.target,count:s.contributions.length,energy:energy(s),early:s.early,launchAt:s.launchAt,vipSlide:slideState(s),ceremonyAt:s.ceremonyAt||null,ceremonyFrom:s.ceremonyFrom??energy(s),revision:s.revision,updatedAt:s.updatedAt,serverTime:Date.now(),config:showConfig()});
   const stats=s=>({connectedParticipants:new Set([...clients].filter(c=>c.id===s.id&&c.role==='participant').map(c=>c.identity)).size,leds:[...leds.values()].filter(l=>l.session===s.id&&Date.now()-l.at<12000)});
   const broadcast=s=>{for(const c of clients)if(c.id===s.id)c.res.write(`data: ${JSON.stringify(publicState(s))}\n\n`);};
   const finish=s=>{s.revision++;s.updatedAt=Date.now();persist();broadcast(s);};
@@ -81,7 +84,7 @@ export function makeApp(options={}) {
         const log=existsSync(join(data,'audit.ndjson'))?readFileSync(join(data,'audit.ndjson'),'utf8').trim().split('\n').slice(-300).filter(Boolean).map(JSON.parse).filter(x=>x.session===s.id).slice(-50).reverse():[];
         return json(res,200,{...publicState(s),...stats(s),vipStatus:!s.vip||s.vip.expiresAt<Date.now()?'unpaired':s.vip.browser?'paired':'link-created',log,sessions:Object.keys(sessions),publicUrl:publicUrl||`http://${req.headers.host}`});
       }
-      const m=url.pathname.match(/^\/api\/(state|events|contribute|action|qr|led|vip-pair|vip-access|vip-status|vip-launch|vip-revoke)\/([a-z0-9-]+)$/);
+      const m=url.pathname.match(/^\/api\/(state|events|contribute|action|qr|led|vip-pair|vip-access|vip-status|vip-progress|vip-launch|vip-revoke)\/([a-z0-9-]+)$/);
       if(m){
         const [,type,id]=m,s=sessions[id];if(!s)throw new ShowError('Sesi tidak tersedia.',404);
         if(type==='vip-pair'&&req.method==='POST'){
@@ -110,6 +113,15 @@ export function makeApp(options={}) {
           if(!vipAuthorized(req,s))throw new ShowError('Akses VIP belum dipasangkan. Minta QR khusus dari operator.',401);
           return json(res,200,publicState(s));
         }
+        if(type==='vip-progress'&&req.method==='POST'){
+          if(!vipAuthorized(req,s))throw new ShowError('Akses VIP tidak valid.',401);
+          rate(req,'vip-progress',1200);const b=await body(req);
+          if(b.epoch!==s.epoch||!vipReady({...s,config}))throw new ShowError('Slider belum siap.');
+          if(typeof b.progress!=='number'||!Number.isFinite(b.progress)||b.progress<0||b.progress>1)throw new ShowError('Progress tidak valid.',400);
+          slides.set(s.id,{epoch:s.epoch,browser:s.vip.browser,progress:b.progress,at:Date.now()});
+          for(const c of clients)if(c.id===s.id&&c.role==='led')c.res.write(`data: ${JSON.stringify(publicState(s))}\n\n`);
+          return json(res,200,{ok:true});
+        }
         if(type==='vip-launch'&&req.method==='POST'){
           if(!vipAuthorized(req,s))throw new ShowError('Akses VIP tidak valid. Hubungi operator.',401);
           rate(req,'vip-launch',30);const b=await body(req);
@@ -123,7 +135,7 @@ export function makeApp(options={}) {
         if(type==='events'&&req.method==='GET'){
           const who=identity(req,res);if(clients.size>=500)throw new ShowError('Kapasitas koneksi penuh.',503);
           res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache, no-transform','Connection':'keep-alive','X-Accel-Buffering':'no'});
-          const c={id,res,identity:who,role:url.searchParams.get('role')==='participant'?'participant':'screen'};clients.add(c);
+          const c={id,res,identity:who,role:url.searchParams.get('role')==='participant'?'participant':url.searchParams.get('role')==='led'?'led':'screen'};clients.add(c);
           res.write(`retry: 1500\ndata: ${JSON.stringify(publicState(s))}\n\n`);req.on('close',()=>clients.delete(c));return;
         }
         if(type==='qr'&&req.method==='GET'){
